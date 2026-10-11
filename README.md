@@ -67,67 +67,72 @@ Everything runs inside a **Streamlit** web interface exposed to the public throu
 
    ```bash
    !pip install -q streamlit pyngrok feedparser markdown transformers accelerate bitsandbytes
-Write the app to a file (%%writefile news_app.py) — see the notebook NGROK_Kaggle.ipynb / Multi_Agent_News_Breifer.ipynb for the full source.
+3. Write the app to a file (%%writefile news_app.py) — see the notebook NGROK_Kaggle.ipynb / Multi_Agent_News_Breifer.ipynb for the full source.
 
-Launch Streamlit and open the ngrok tunnel:
+4. Launch Streamlit and open the ngrok tunnel:
 
-Python
-import subprocess, threading, time, socket, os
-from pyngrok import ngrok, conf
+   ```bash
+   import subprocess, threading, time, socket, os
+   from pyngrok import ngrok, conf
+   
+   NGROK_TOKEN = "your_ngrok_authtoken_here"   # from [https://dashboard.ngrok.com](https://dashboard.ngrok.com)
+   
+   def free_port():
+       s = socket.socket(); s.bind(("", 0))
+       port = s.getsockname()[1]; s.close(); return port
+   
+   PORT = free_port()
+   
+   def run():
+       subprocess.run([
+           "streamlit", "run", "news_app.py",
+           "--server.port", str(PORT),
+           "--server.address", "0.0.0.0",
+           "--server.headless", "true",
+           "--server.enableCORS", "false",
+           "--server.enableXsrfProtection", "false",
+       ])
+   
+   threading.Thread(target=run, daemon=True).start()
+   time.sleep(8)
+   
+   conf.get_default().auth_token = NGROK_TOKEN
+   print("🌐 Public URL:", ngrok.connect(PORT, bind_tls=True).public_url)
+5. Open the printed URL in a new tab.
 
-NGROK_TOKEN = "your_ngrok_authtoken_here"   # from [https://dashboard.ngrok.com](https://dashboard.ngrok.com)
+### Option B — Run locally on your own machine
 
-def free_port():
-    s = socket.socket(); s.bind(("", 0))
-    port = s.getsockname()[1]; s.close(); return port
-
-PORT = free_port()
-
-def run():
-    subprocess.run([
-        "streamlit", "run", "news_app.py",
-        "--server.port", str(PORT),
-        "--server.address", "0.0.0.0",
-        "--server.headless", "true",
-        "--server.enableCORS", "false",
-        "--server.enableXsrfProtection", "false",
-    ])
-
-threading.Thread(target=run, daemon=True).start()
-time.sleep(8)
-
-conf.get_default().auth_token = NGROK_TOKEN
-print("🌐 Public URL:", ngrok.connect(PORT, bind_tls=True).public_url)
-Open the printed URL in a new tab.
-
-Option B — Run locally on your own machine
 If you prefer running the application locally on your desktop or laptop without Google Colab or ngrok:
 
-Clone the repository and navigate to the project directory:
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   git clone [https://github.com/Suehaila-Yehia/AI_News_Briefer.git](https://github.com/Suehaila-Yehia/AI_News_Briefer.git)
+   cd AI_News_Briefer
 
-Bash
-git clone [https://github.com/Suehaila-Yehia/AI_News_Briefer.git](https://github.com/Suehaila-Yehia/AI_News_Briefer.git)
-cd AI_News_Briefer
-Install the required dependencies:
+2. Install the required dependencies:
 
-Bash
-pip install streamlit feedparser markdown transformers accelerate bitsandbytes
-Run the Streamlit app:
+   ```bash
+   pip install streamlit feedparser markdown transformers accelerate bitsandbytes
+   Run the Streamlit app:
 
-Bash
-streamlit run news_app.py
-Open http://localhost:8501 in your browser.
+3. Run the Streamlit app:
+   ```bash
+   streamlit run news_app.py
 
-Hardware Note: An NVIDIA GPU with ≥ 6 GB VRAM (CUDA-enabled) is strongly recommended for local inference. The app can run on CPU, but generation will be very slow.
+4. Open http://localhost:8501 in your browser.
 
-Gmail setup (required for email dispatch)
+- [Hardware Note]: An NVIDIA GPU with ≥ 6 GB VRAM (CUDA-enabled) is strongly recommended for local inference. The app can run on CPU, but generation will be very slow.
+
+**Gmail setup** (required for email dispatch)
 You must use a Google App Password, not your real Gmail password:
 
-Enable 2-Step Verification: https://myaccount.google.com/security
+   1. Enable 2-Step Verification:
+      - https://myaccount.google.com/security
+   
+   2. Generate an App Password:
+      - https://myaccount.google.com/apppasswords
 
-Generate an App Password: https://myaccount.google.com/apppasswords
-
-Copy the 16-character code (remove the spaces).
+   3. Copy the 16-character code (remove the spaces).
 
 # 🚀 Usage
 Open the Streamlit app at the ngrok URL (or http://localhost:8501 if local).
@@ -155,35 +160,12 @@ First run takes ~1–3 minutes while the ~6 GB model downloads and loads into VR
 
 # 📸 Demo
 Streamlit interface
-┌────────────────────────┬──────────────────────────────────────┐
-│  ⚙️ News & Model       │  Automation Status:                  │
-│     Settings           │  ✅ Formatted digest successfully    │
-│                        │     emailed to user@example.com!     │
-│  Summary Detail Level: │                                      │
-│  ○ Brief               │  **Latest Headlines**                │
-│  ○ Standard            │                                      │
-│  ● Detailed            │  - The UN Security Council held an   │
-│                        │    emergency session on …            │
-│  Preset Source:        │    ([Read Full Story](https://…))    │
-│  BBC World News ▾      │                                      │
-│                        │  - TechCrunch reports that …         │
-│  Article Count: ──●── 5│    ([Read Full Story](https://…))    │
-│                        │                                      │
-│  Temperature:   ●─── 0.1│  ▼ 🔍 Audit Raw RSS Feed Data         │
-│                        │                                      │
-│  📧 Email Credentials  │                                      │
-│  Recipient: …          │                                      │
-│  Sender:    …          │                                      │
-│  App Pass:  ********   │                                      │
-│                        │                                      │
-│  [🚀 Generate Digest]  │                                      │
-└────────────────────────┴──────────────────────────────────────┘
+
 
 <img width="1407" height="713" alt="Screenshot 2026-10-11 220226" src="https://github.com/user-attachments/assets/8135c133-9763-4e0e-91be-d0a9f70459eb" />
 
 <img width="1488" height="722" alt="Screenshot 2026-10-11 222111" src="https://github.com/user-attachments/assets/6f794b45-ad2b-4356-9dbc-684a48506aa9" />
 
-<img width="1097" height="661" alt="Screenshot 2026-10-11 221255" src="https://github.com/user-attachments/assets/c80d186b-2cdf-4b92-8a4b-83065d0f585f" />
 
 <img width="1097" height="661" alt="Screenshot 2026-10-11 221255" src="https://github.com/user-attachments/assets/f34bbcb2-e01d-4602-ba33-7e7e61e55b55" />
 
