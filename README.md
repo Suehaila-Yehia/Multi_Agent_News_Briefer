@@ -171,7 +171,7 @@ Streamlit interface
 
 <img width="1453" height="712" alt="Screenshot 2026-10-11 222304" src="https://github.com/user-attachments/assets/1c1e44a7-c525-47be-afd9-590888360bc0" />
 
-
+<img width="1170" height="1742" alt="image" src="https://github.com/user-attachments/assets/d071dd0e-c320-4d2c-8a4c-335a09b51332" />
 
 
 # 📈 Results
